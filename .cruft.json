@@ -1,0 +1,23 @@
+{
+  "template": "/home/dieter/repos/python_cookie",
+  "commit": "078652cda9015c1f9de21399086a900d4df53659",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "Novastar MCTRL300 Basic control",
+      "repo_bare": "mctrl300_basic_control",
+      "project_link": "https://www.boxfish.be",
+      "module_name": "mctrl300_bc",
+      "class_name": "MCTRL300BasicControl",
+      "project_description": "Basic control of the Novastar MCTRL300 LED processor.",
+      "keywords": "'Novastar', 'MCTRL300', 'basic control',",
+      "use_config_file": false,
+      "add_documentation": false,
+      "add_gui": true,
+      "create_assets_dir": true,
+      "_template": "/home/dieter/repos/python_cookie",
+      "_commit": "078652cda9015c1f9de21399086a900d4df53659"
+    }
+  },
+  "directory": null
+}

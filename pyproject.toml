@@ -1,0 +1,157 @@
+# See https://peps.python.org/pep-0621/
+
+[project]
+name = 'mctrl300_bc'
+description = 'Basic control of the Novastar MCTRL300 LED processor.'
+readme = 'README.md'
+license = { file = 'LICENSE' }
+requires-python = ">=3.12.6"
+authors = [
+    { name = 'Dieter Vansteenwegen', email = 'github@vansteenwegen.org' },
+]
+
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Programming Language :: Python',
+    "Environment :: Gui",
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Operating System :: POSIX :: Linux",
+]
+
+keywords = ['Novastar', 'MCTRL300', 'basic control']
+version = 'v0.1.0'
+
+dependencies = ["pyserial>=3.5", "PySide6>=6.8"]
+
+[project.urls]
+Homepage = 'https://boxfish.be/posts/20230213-novastar-mctrl300-basic-control-software/'
+Repository = 'https://github.com/dietervansteenwegen/mctrl300_basic_control.git'
+Changelog = 'https://github.com/dietervansteenwegen/mctrl300_basic_control/blob/master/CHANGELOG.md'
+# Documentation = 'https://readthedocs.org'
+
+
+[project.gui-scripts]
+mctrl300_bc_gui = 'mctrl300_bc.__main__:run'
+[build-system]
+requires = ['setuptools >= 61.0']
+build-backend = 'setuptools.build_meta'
+
+[tool.uv]
+dev-dependencies = [
+    # "mctrl300_bc",
+    "pre-commit>=4.1.0",
+    "deptry>=0.22.0",
+    "ruff>=0.9.6",
+    "dead>=2.1.0",
+    "pyside6-stubs>=6.4",
+]
+
+[tool.uv.pip]
+generate-hashes = true
+
+[tool.uv.sources]
+mctrl300_bc = { workspace = true }
+
+[tool.setuptools.packages.find]
+where = ['src'] # list of folders that contain the packages (['.'] by default)
+include = [
+    'mctrl300_bc',
+] # package names should match these glob patterns (['*'] by default)
+# exclude = ['my_package.tests*'] # exclude packages matching these glob patterns (empty by default)
+
+
+[tool.ruff]
+target-version = "py310"
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "docs",
+    "src/mctrl300_bc/ui_sources/",
+]
+line-length = 100
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    # Pycodestyle errors
+    "E",
+    # Pycodestyle warnings
+    "W",
+    # Pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # McCabe complex structure
+    "C901",
+    # PEP8 Naming
+    "N",
+    # Flake8-Bandit
+    "S",
+    # Flake8-builtins
+    "A",
+    # Flake8-commas
+    "COM",
+    # Flake8-datetimez
+    "DTZ",
+    # Flake8-errmsg
+    "EM",
+    # Flake8-use-pathlib
+    "PTH",
+    # tryceratops
+    "TRY",
+]
+
+ignore = [
+    # Use logging.exception instead of logging.error
+    "TRY400",
+    # Raising and catching exceptions in the same block may lead to confusion
+    "TRY301",
+    # Do not run missing-trailing-comma together with formatter (see https://docs.astral.sh/ruff/rules/missing-trailing-comma/#formatter-compatibility)
+    "COM812",
+    # PyQT doesn't adhere to or works well with N801/N802/N803/N813
+    "N801",
+    "N802",
+    "N803",
+    "N813",
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# "docs/conf.py" = ["D100", "D101", "D105"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+exclude = ["*.pyi"]
