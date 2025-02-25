@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>494</width>
+    <width>671</width>
     <height>417</height>
    </rect>
   </property>
@@ -39,7 +39,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="lst_serial_ports"/>
+       <widget class="QTableView" name="tbl_serial_ports">
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+        </property>
+        <property name="tabKeyNavigation">
+         <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btn_serial_open">
@@ -360,7 +385,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>494</width>
+     <width>671</width>
      <height>23</height>
     </rect>
    </property>
@@ -581,7 +606,6 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>lst_serial_ports</tabstop>
   <tabstop>btn_serial_open</tabstop>
   <tabstop>cmb_output</tabstop>
   <tabstop>btn_serial_refresh</tabstop>

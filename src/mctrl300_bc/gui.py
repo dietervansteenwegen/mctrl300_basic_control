@@ -14,7 +14,8 @@ from PySide6 import QtWidgets as qtw
 
 from .config import Config
 from .log import DialogLog
-from .serports import ConnStatus, SerConnection
+from .models import SerialPortModel
+from .serial_handler import ConnAction, ConnStatus, SerialHandler
 from .ui_sources.mainwindow import Ui_MainWindow
 
 log = logging.getLogger(__name__)
@@ -29,16 +30,33 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         self.setupUi(self)
         self._setup_dialog_log()
         self.setStatusBar(qtw.QStatusBar(self))
-        self.ser_connection = SerConnection()
+        self.ser_connection = SerialHandler()
         # self.scr_status = ScreenStatus()
+        self._setup_models()
         self._setup_signals()
         self._setup_timers()
 
+    def _setup_models(self):
+        self.model_ports = SerialPortModel()
+        self.tbl_serial_ports.setModel(self.model_ports)
+
     def _setup_signals(self):
         self.sgn_ser_conn_check_status.connect(self.ser_connection.check_status)
-        self.ser_connection.sgn_port_list_changed.connect(self._update_port_list)
+        self.sgn_change_conn.connect(self.ser_connection.change_status)
+        self.ser_connection.sgn_port_list_changed.connect(self._update_port_table)
         self.ser_connection.sgn_conn_changed.connect(self._ser_conn_has_changed)
         self.ser_connection.sgn_err_msg.connect(self._handle_ser_conn_err_msg)
+        self.btn_serial_open.clicked.connect(self._handle_btn_serial_open_click)
+
+    @qtc.Slot()
+    def _handle_btn_serial_open_click(self):
+        # if self.tbl_serial_ports.select
+        port_name = self.tbl_serial_ports.currentIndex().siblingAtColumn(0).data()
+        if port_name:
+            self.sgn_change_conn.emit(
+                port_name,
+                ConnAction.OPEN if self.btn_serial_open.isChecked() else ConnAction.CLOSE,
+            )
 
     @qtc.Slot()
     def _handle_ser_conn_err_msg(self, msg: str):
@@ -53,7 +71,6 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
     def _setup_timers(self):
         self.timer_1s = qtc.QTimer(self)
         self.timer_1s.setInterval(1000)
-        # self.timer_1s.timeout.connect(self._timer_timeout)
         self.timer_1s.timeout.connect(self.sgn_ser_conn_check_status.emit)
         self.timer_1s.start()
 
@@ -62,11 +79,11 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         self.dialog_log.show()
 
     @qtc.Slot()
-    def _update_port_list(self, port_list: tuple[str, str, str]):
+    def _update_port_table(self, port_list: tuple[str, str, str]):
+        self.model_ports.update(port_list)
+        self.model_ports.layoutChanged.emit()
+        self.tbl_serial_ports.resizeColumnsToContents()
         self.statusBar().showMessage('List of serial ports changed', 2000)
-        self.lst_serial_ports.clear()
-        for port, manufacturer, product in port_list:
-            self.lst_serial_ports.addItem(f'{port} ({manufacturer}: {product})')
 
 
 def start_gui(config: Config) -> None:
