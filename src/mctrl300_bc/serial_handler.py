@@ -70,6 +70,7 @@ class SerialHandler(qtc.QObject):
             self.open(str_port)
         else:
             self.close(str_port)
+        # TODO: Error handling and additional checking
 
         # try:
         #     self.port = serial.Serial(str_port,
@@ -84,12 +85,36 @@ class SerialHandler(qtc.QObject):
 
     def open(self, port: str, baudrate: int = DEFAULT_BAUDRATE, timeout: int = DEFAULT_TIMEOUT):
         if self.port is not None and self.port.is_open:
-            self.port.close()
+            self.close(port)
+            self.port = None
             self.sgn_conn_changed.emit(self.port.port if port else '', self.conn_status)
 
         if self.port is None:
-            ...  # Open port
-        # elif
+            try:
+                self.port = serial.Serial(
+                    port=port,
+                    baudrate=DEFAULT_BAUDRATE,
+                    timeout=DEFAULT_TIMEOUT,
+                )
+                if not self.port.is_open:
+                    err_msg = 'Port did not open. No exception raised.'
+                    raise serial.SerialException(err_msg)
+            except serial.SerialException as e:
+                err_msg = f'Error while opening {port}: {e}'
+                log.error(err_msg)
+                self.sgn_err_msg.emit(err_msg)
+                # TODO: raise SerialHandlerError?
+            else:
+                self.sgn_conn_changed.emit(self.port.port, ConnStatus.OPENED)
+
+    def close(self, port: str) -> None:
+        if self.port and self.port.port == port:
+            self.port.close()
+            self._reset()
+            return self.check_port()
+        else:
+            err_msg = f'Trying to close {port} but current active port is {self.port}'
+            self.sgn_err_msg.emit(err_msg)
 
     # def close(self, port: str):
     #     try:
@@ -118,12 +143,6 @@ class SerialHandler(qtc.QObject):
         else:
             self.conn_status = ConnStatus.CLOSED
         return self.conn_status()
-
-    def close(self):
-        if self.port is not None:
-            self.port.close()
-            self._reset()
-        return self.check_port()
 
     @staticmethod
     def get_available_ports() -> list:
