@@ -63,8 +63,18 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         # TODO
         log.error(f'Serial connection error: {msg}')
 
+    def _update_ui_elements(self):
+        ...
+        # Todo:
+        # - self.cmb_output.setEnabled(self.serial_connection.is_open)
+        # - All the rest: depends on serial_connection status and selected output
+
     @qtc.Slot()
     def _ser_conn_has_changed(self, port: str, status):
+        if not port or status != ConnStatus.OPENED:
+            self.btn_serial_open.setChecked(False)
+        elif status == ConnStatus.OPENED:
+            self.cmb_output.setEnabled(True)
         # TODO
         log.info(f'Connection status changed: {port} - {status}')
 

@@ -43,6 +43,7 @@ class SerialHandler(qtc.QObject):
     sgn_conn_changed = qtc.Signal(str, ConnStatus)  # (portname, status)
     sgn_port_list_changed = qtc.Signal(tuple)  # (port, manufacturer, product)
     sgn_err_msg = qtc.Signal(str)  # Error message
+    sgn_rx_data = qtc.Signal(bytearray)
 
     def __init__(self):
         super().__init__()
@@ -57,12 +58,17 @@ class SerialHandler(qtc.QObject):
 
     @qtc.Slot()
     def check_status(self):
+        # Should do:
+        #   - check if portlist is still acurate -> If not -> update/signal
+        #   - check if current port is still available -> If not -> set to None and update/signal
+        #   - check if current port is still open -> If not -> set to closed and update/signal
         available_ports = self.get_available_ports()
         for port in available_ports:
             port.append(ConnStatus.CLOSED)
         if available_ports != self._available_ports:
             self._available_ports = available_ports
             self.sgn_port_list_changed.emit(available_ports)
+            return self.check_port()
 
     @qtc.Slot()
     def change_status(self, str_port, conn_action: ConnAction):
@@ -72,22 +78,47 @@ class SerialHandler(qtc.QObject):
             self.close(str_port)
         # TODO: Error handling and additional checking
 
-        # try:
-        #     self.port = serial.Serial(str_port,
-        #                               baudrate=DEFAULT_BAUDRATE,
-        #                               timeout=DEFAULT_TIMEOUT,
-        #                               write_timeout=DEFAULT_TIMEOUT,
-        #                       )
-        #     self.port.open()
-        #     if self.port.is_open:
-        #         self.conn_status = ConnStatus.CONNECTED
-        # except serial.SerialException as e:
+    def send(self, data: bytearray) -> None:
+        """Send data to the serial port.
+
+        Send data to serial port if it is available and open.
+
+        Args:
+            data (bytearray): Data to be sent to the serial port.
+
+        Raises:
+            SerialStateError: If port is not available or not open.
+        """
+        if self.port is None or not self.port.is_open:
+            err_msg = 'Port is not open. Cannot send data.'
+            log.error(err_msg)
+            self.sgn_err_msg.emit(err_msg)
+            raise SerialStateError(err_msg)
+        else:
+            self.port.write(data)
+
+    def receive(self, size: int) -> bytearray:
+        if self.port is None or not self.port.is_open:
+            err_msg = 'Port is not open. Cannot receive data.'
+            log.error(err_msg)
+            self.sgn_err_msg.emit(err_msg)
+            return bytearray()
+        else:
+            self.sgn_rx_data.emit(self.port.read(size))  # TODO: check if amount of data is correct
 
     def open(self, port: str, baudrate: int = DEFAULT_BAUDRATE, timeout: int = DEFAULT_TIMEOUT):
+        """Open a serial port with given parameters.
+
+        Args:
+            port (str): Name of the port (e.g. 'COM1', '/dev/ttyUSB0').
+            baudrate (int, optional): Port baudrate. Defaults to DEFAULT_BAUDRATE.
+            timeout (int, optional): Timeout in seconds. Defaults to DEFAULT_TIMEOUT.
+
+        """
         if self.port is not None and self.port.is_open:
             self.close(port)
             self.port = None
-            self.sgn_conn_changed.emit(self.port.port if port else '', self.conn_status)
+            self.sgn_conn_changed.emit(self.port.port if self.port else '', self.conn_status)
 
         if self.port is None:
             try:
@@ -116,33 +147,17 @@ class SerialHandler(qtc.QObject):
             err_msg = f'Trying to close {port} but current active port is {self.port}'
             self.sgn_err_msg.emit(err_msg)
 
-    # def close(self, port: str):
-    #     try:
-    #         if not self.port.port == port:
-    #             raise ValueError
-    #         self.port.close()
-    #     except:  # noqa: E722, S110
-    #         pass  # TODO
-    #     if self.port is not None and self.port.is_open:
-    #         self.port.close()
-    #         self.conn_status = ConnStatus.CLOSED
-    #         self.sgn_conn_changed.emit('', self.conn_status)
-    #     else:
-    #         err_msg = (
-    #             f'Want to close port {port} but current port is {self.port.port},  '
-    #             f'is_open: {self.port.is_open == True}'
-    #         )
-    #         log.error(err_msg)
-    #         self.sgn_err_msg.emit(err_msg)
-
     def check_port(self):
         if self.port is None:
-            self.conn_status = ConnStatus.NO_PORT
-        if self.port.is_open:
-            self.conn_status = ConnStatus.OPENED
+            conn_status = ConnStatus.NO_PORT
+        elif self.port.is_open:
+            conn_status = ConnStatus.OPENED
         else:
-            self.conn_status = ConnStatus.CLOSED
-        return self.conn_status()
+            conn_status = ConnStatus.CLOSED
+        if conn_status != self.conn_status:
+            self.conn_status = conn_status
+            self.sgn_conn_changed.emit(self.port.port if self.port else '', self.conn_status)
+        return self.conn_status
 
     @staticmethod
     def get_available_ports() -> list:

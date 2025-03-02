@@ -147,6 +147,7 @@ class DialogLog(QDialog):
         font.setStyleHint(QFont.StyleHint.TypeWriter)  # type: ignore
         self.setFont(font)
         self._move_bottom_left()
+        logging.getLogger().addHandler(QTLogHandler(self))
 
     def _move_bottom_left(self):
         """Move dialog box to bottom left of current monitor."""
@@ -155,5 +156,3 @@ class DialogLog(QDialog):
 
         y = (monitor.height() - 40) - window.height()
         self.move(0, y)
-        log_text_box = QTLogHandler(self)
-        logging.getLogger().addHandler(log_text_box)
