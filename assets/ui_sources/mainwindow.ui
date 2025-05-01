@@ -77,16 +77,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_serial_refresh">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Refresh ports list</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLabel" name="lbl_serial_status">
         <property name="frameShape">
          <enum>QFrame::Shape::Box</enum>
@@ -173,87 +163,89 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QGroupBox" name="grp_brightness">
-            <property name="title">
-             <string>Brightness</string>
+           <widget class="QLabel" name="lbl_brightness">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string notr="true">Brightness:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="sldr_brightness">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>ClosedHandCursor</cursorShape>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="value">
+             <number>8</number>
+            </property>
+            <property name="sliderPosition">
+             <number>8</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TickPosition::NoTicks</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_brightness_value">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string notr="true">Unknown</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
             </property>
-            <widget class="QSlider" name="sldr_brightness">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>30</y>
-               <width>70</width>
-               <height>281</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>70</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="cursor">
-              <cursorShape>ClosedHandCursor</cursorShape>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="maximum">
-              <number>255</number>
-             </property>
-             <property name="value">
-              <number>8</number>
-             </property>
-             <property name="sliderPosition">
-              <number>8</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
-             </property>
-             <property name="invertedAppearance">
-              <bool>false</bool>
-             </property>
-             <property name="tickPosition">
-              <enum>QSlider::TickPosition::NoTicks</enum>
-             </property>
-             <property name="tickInterval">
-              <number>10</number>
-             </property>
-            </widget>
-            <widget class="QLabel" name="lbl_brightness_value">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>320</y>
-               <width>97</width>
-               <height>20</height>
-              </rect>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string notr="true">Unknown</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
            </widget>
           </item>
          </layout>
@@ -384,7 +376,7 @@
      <x>0</x>
      <y>0</y>
      <width>671</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -446,12 +438,6 @@
    </property>
   </widget>
   <action name="menu_show_logs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Show &amp;logs</string>
    </property>
@@ -612,7 +598,6 @@
  <tabstops>
   <tabstop>btn_serial_open</tabstop>
   <tabstop>cmb_output</tabstop>
-  <tabstop>btn_serial_refresh</tabstop>
  </tabstops>
  <resources/>
  <connections/>

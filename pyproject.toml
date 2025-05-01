@@ -46,6 +46,7 @@ dev-dependencies = [
     "ruff>=0.9.6",
     "dead>=2.1.0",
     "pyside6-stubs>=6.4",
+    "vulture>=2.14",
 ]
 
 [tool.uv.pip]
@@ -155,3 +156,14 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 exclude = ["*.pyi"]
+
+
+[tool.vulture]
+exclude = ["src/mctrl300_bc/ui_sources"]
+ignore_names = ['args', 'kwargs']
+min_confidence = 60
+paths = ['./src']
+# ignore_decorators = ["@app.route", "@require_*"]
+# make_whitelist = true
+# sort_by_size = true
+# verbose = true

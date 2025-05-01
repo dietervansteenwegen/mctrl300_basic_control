@@ -85,7 +85,7 @@ class SerialHandler(qtc.QObject):
             self.sgn_port_list_changed.emit(available_ports)
 
     @qtc.Slot()
-    def change_status(self, str_port: str, conn_action: ConnAction):
+    def change_connection(self, str_port: str, conn_action: ConnAction):
         """Change status (connect/disconnect) of `str_port`.
 
         Args:
@@ -167,7 +167,9 @@ class SerialHandler(qtc.QObject):
                 log.error(err_msg)
                 self.sgn_err_msg.emit(err_msg)
                 # TODO: raise SerialHandlerError?
+                self.conn_status = ConnStatus.CLOSED
             else:
+                self.conn_status = ConnStatus.OPENED
                 self.sgn_conn_changed.emit(self.port.port, ConnStatus.OPENED)
 
     def close(self, port: str) -> None:

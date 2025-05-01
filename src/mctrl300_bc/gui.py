@@ -13,6 +13,7 @@ import sys
 from PySide6 import QtCore as qtc
 from PySide6 import QtWidgets as qtw
 
+from .common import UIStatus
 from .config import Config
 from .log import DialogLog
 from .models import SerialPortModel
@@ -25,6 +26,7 @@ log = logging.getLogger(__name__)
 class MainWindow(Ui_MainWindow, qtw.QMainWindow):
     sgn_ser_conn_check_status = qtc.Signal()
     sgn_change_conn = qtc.Signal(str, ConnStatus)  # (portname, status)
+    sgn_change_uistatus = qtc.Signal(UIStatus)
 
     def __init__(self, *args, obj=None, **kwargs):
         super().__init__()
@@ -37,6 +39,7 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         self._setup_models()
         self._setup_signals()
         self._setup_timers()
+        self._emit_signals()
 
     def _setup_models(self) -> None:
         """Set up models and link with widgets."""
@@ -45,8 +48,9 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
 
     def _setup_signals(self) -> None:
         """Connect signals."""
+        # self.sgn_change_uistatus.connect(self._update_ui_elements)
         self.sgn_ser_conn_check_status.connect(self.ser_connection.check_available_ports)
-        self.sgn_change_conn.emit(None, ConnStatus.NO_PORT)
+        self.sgn_change_conn.connect(self.ser_connection.change_connection)
         self.ser_connection.sgn_port_list_changed.connect(self._update_port_table)
         self.ser_connection.sgn_conn_changed.connect(self._ser_conn_has_changed)
         self.ser_connection.sgn_err_msg.connect(self._handle_ser_conn_err_msg)
@@ -54,11 +58,24 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         self.menu_show_logs.triggered.connect(self._handle_show_logs_dialog_changed)
 
     @qtc.Slot()
+    def _emit_signals(self) -> None:
+        self.sgn_change_conn.emit(None, ConnStatus.NO_PORT)
+
+    @qtc.Slot()
     def _handle_show_logs_dialog_changed(self) -> None:
         if self.menu_show_logs.isChecked():
             self.dialog_log.show()
         else:
             self.dialog_log.hide()
+
+    @qtc.Slot()
+    def _update_ui_elements(self) -> None:
+        """Update UI elements based on the current state of the application.
+
+        This method is called when the connection status changes or when the available ports
+        are updated.
+        """
+        pass
 
     @qtc.Slot()
     def _handle_btn_serial_open_click(self) -> None:
@@ -86,18 +103,11 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
         # TODO
         log.error(f'Serial connection error: {msg}')
 
-    def _update_ui_elements(self) -> None:
-        port_opened: bool = (
-            self.ser_connection.port and self.ser_connection.conn_status == ConnStatus.OPENED
-        )
-        self.cmb_output.setEnabled(port_opened)
-        output_selected: bool = self.cmb_output.currentIndex != 0
-        self.grp_patterns.setEnabled(port_opened and output_selected)
-        self.grp_brightness.setEnabled(port_opened and output_selected)
-
-        # Todo:
-        # - self.cmb_output.setEnabled(self.serial_connection.is_open)
-        # - All the rest: depends on serial_connection status and selected output
+    def _change_ui_state(self, state: UIStatus) -> None:
+        self.cmb_output.setEnabled(state >= UIStatus.PORT_OPENED)
+        output_selected: bool = self.cmb_output.currentIndex() != 0
+        self.grp_patterns.setEnabled(state >= UIStatus.PORT_OPENED and output_selected)
+        self.grp_brightness.setEnabled(state >= UIStatus.PORT_OPENED and output_selected)
 
     @qtc.Slot()
     def _ser_conn_has_changed(self, port: str, status) -> None:
@@ -112,6 +122,7 @@ class MainWindow(Ui_MainWindow, qtw.QMainWindow):
             self.lbl_serial_status.setText(f'Port {port} is OPEN')
         # TODO
         log.info(f'Connection status changed: {port} - {status}')
+        self._update_ui_elements()
 
     def _setup_timers(self) -> None:
         """Set up timers."""

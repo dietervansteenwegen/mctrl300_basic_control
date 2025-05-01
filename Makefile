@@ -7,11 +7,11 @@ prep:
 	@uv export --format requirements-txt > requirements.txt
 	@echo "🚀 Running pre-commit"
 	@uv run pre-commit autoupdate
-	uv run pre-commit run --all-files
+	@uv run pre-commit run --all-files
 	@echo "🚀 Checking for obsolete dependencies: Running deptry"
 	@uv run deptry .
-	@echo "🚀 Checking for dead code: Running dead"
-	@uv run dead
+	@echo "🚀 Checking for dead code: Running Vulture"
+	@uv run vulture ./src
 
 .PHONY: cleanup_git
 ## Create list of local branches in a temporary file.
